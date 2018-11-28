@@ -1,0 +1,41 @@
+#!/usr/bin/env python
+
+import argparse
+import datetime
+import sys
+
+
+def load_arguments():
+    """
+    Load and parse command line arguments
+
+    Returns:
+        argparse.Namespace
+    """
+    parser = argparse.ArgumentParser(description='GitHub repository analysis utility')
+
+    parser.add_argument('url', type=str,
+                        metavar='URL', help='repository URL')
+    parser.add_argument('-s', '--start-date', type=datetime.date.fromisoformat, default=None,
+                        metavar='DATE', help='analysis start date (yyy-MM-dd format) or unlimited')
+    parser.add_argument('-e', '--end-date', type=datetime.date.fromisoformat, default=None,
+                        metavar='DATE', help='analysis end date (yyy-MM-dd format) or unlimited')
+    parser.add_argument('-b', '--branch', type=str, default='master',
+                        metavar='BRANCH', help='repository branch')
+
+    return parser.parse_args()
+
+
+def main():
+    args = load_arguments()
+
+    url = args.url
+    start_date = args.start_date and datetime.date.fromisoformat(args.start_date)
+    end_date = args.end_date and datetime.date.fromisoformat(args.end_date)
+    branch = args.branch
+
+    print(url, start_date, end_date, branch)
+
+
+if __name__ == '__main__':
+    main()
