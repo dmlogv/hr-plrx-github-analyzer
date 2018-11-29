@@ -14,22 +14,40 @@ import urllib.parse
 ROOT = 'https://api.github.com'
 
 
-class Repo:
+class Resource:
+    """
+    Web resource base class
+    """
+    def __init__(self, requestapi, path):
+        """
+        Initialize web resource
+
+        Args:
+            requestapi: REST API methods class
+            path: resource URL
+        """
+        self._api = requestapi
+        # Parsed resource response
+        self._raw = None
+
+        self.path = path
+
+    def load(self):
+        self._raw = self._api.get_json(self.path)
+
+
+class Repo(Resource):
     """
     Repository API
     """
     def __init__(self, requestapi, owner, repository, api_root=ROOT):
-        self._api = requestapi
-
         self._root = api_root
         self.owner = owner
         self.repository = repository
-        self.path = urllib.parse.urljoin(self._root,
-                                         posixpath.join(owner, repository))
-        self.raw = None
+        path = urllib.parse.urljoin(self._root,
+                                    posixpath.join(owner, repository))
 
-    def load(self):
-        self.raw = self._api.get_json(self.path)
+        super().__init__(requestapi, path)
 
 
 class Contributor:

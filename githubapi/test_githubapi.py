@@ -35,4 +35,4 @@ class RepoTest(unittest.TestCase):
 
     def test_load(self):
         self.repo.load()
-        self.assertEqual({'url': self.repo.path}, self.repo.raw)
+        self.assertEqual({'url': self.repo.path}, self.repo._raw)
