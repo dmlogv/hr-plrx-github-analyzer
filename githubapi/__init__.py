@@ -2,7 +2,7 @@
 GitHub Demo API
 """
 
-__all__ = ['Repo']
+__all__ = ['Resource', 'Repo']
 __version__ = '0.0.1'
 
 
@@ -28,9 +28,18 @@ class Resource:
         """
         self._api = requestapi
         # Parsed resource response
-        self._raw = None
+        self._raw = {}
 
         self.path = path
+
+    def __getattr__(self, item):
+        """
+        Get value from GitHub API response
+        """
+        try:
+            return self._raw[item]
+        except KeyError:
+            raise AttributeError(f'GitHub API does not store `{item}` attribute')
 
     def load(self):
         self._raw = self._api.get_json(self.path)
