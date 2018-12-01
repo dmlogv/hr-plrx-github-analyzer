@@ -2,7 +2,7 @@
 GitHub Demo API
 """
 
-__all__ = ['Resource', 'Repo']
+__all__ = ['Resource', 'Container', 'Repo']
 __version__ = '0.0.1'
 
 
@@ -43,6 +43,14 @@ class Resource:
 
     def load(self):
         self._raw = self._api.get_json(self.path)
+
+
+class Container(Resource):
+    def __getitem__(self, item):
+        return self._raw[item]
+
+    def __iter__(self):
+        return iter(self._raw)
 
 
 class Repo(Resource):

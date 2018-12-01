@@ -34,6 +34,23 @@ class ResourceTest(unittest.TestCase):
             self.resource.jabba_the_hutt
 
 
+class ContainerTest(unittest.TestCase):
+    def setUp(self):
+        self.container = Container(None, None)
+        self.container._raw = [{'name': 'Mike'},
+                               {'name': 'Nick'},
+                               {'name': 'Oak'}]
+
+    def test_index(self):
+        self.assertEqual({'name': 'Nick'}, self.container[1])
+        with self.assertRaises(IndexError):
+            self.container[10]
+
+    def test_iter(self):
+        for i, item in enumerate(self.container):
+            self.assertEqual(self.container[i], item)
+
+
 class RepoTest(unittest.TestCase):
     def setUp(self):
         self.repo = Repo(Api, 'dm-logv', 'aero-stat', 'http://gh.com')
