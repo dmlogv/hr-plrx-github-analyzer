@@ -67,21 +67,21 @@ class Repo(Resource):
         super().__init__(requestapi, path)
 
 
-class Contributor:
+class Contributors(Container):
     """
     Repository Contributor API
     """
     pass
 
 
-class Pull:
+class Pulls(Container):
     """
     Repository Pull-request API
     """
     pass
 
 
-class Issue:
+class Issues(Container):
     """
     Repository Issue API
     """
