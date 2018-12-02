@@ -65,7 +65,16 @@ class Repo(Resource):
         path = urllib.parse.urljoin(self._root,
                                     posixpath.join(owner, repository))
 
+        self.contributors = None
+        self.pulls = None
+        self.issues = None
+
         super().__init__(self._api, path)
+
+    def load_containers(self):
+        self.contributors = Contributors(self._api, self.contributors_url)
+        self.pulls = Pulls(self._api, self.pulls_api)
+        self.issues = Issues(self._api, self.issues_api)
 
 
 class Contributors(Container):
