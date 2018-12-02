@@ -44,6 +44,8 @@ class Resource:
     def load(self):
         self._raw = self._api.get_json(self.path)
 
+        return self
+
 
 class Container(Resource):
     def __getitem__(self, item):
@@ -78,6 +80,8 @@ class Repo(Resource):
         self.contributors = Contributors(self._api, self.contributors_url)
         self.pulls = Pulls(self._api, self.pulls_url)
         self.issues = Issues(self._api, self.issues_url)
+
+        return self
 
 
 class Contributors(Container):
