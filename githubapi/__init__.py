@@ -57,17 +57,20 @@ class Repo(Resource):
     """
     Repository API
     """
+    resource_url = 'repos'
+
     def __init__(self, requestapi, owner, repository, api_root=ROOT):
         self._api = requestapi
         self._root = api_root
         self.owner = owner
         self.repository = repository
-        path = urllib.parse.urljoin(self._root,
-                                    posixpath.join(owner, repository))
 
         self.contributors = None
         self.pulls = None
         self.issues = None
+
+        path = urllib.parse.urljoin(self._root, posixpath.join(
+            self.resource_url, owner, repository))
 
         super().__init__(self._api, path)
 
