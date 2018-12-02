@@ -3,6 +3,23 @@ import unittest
 from . import *
 
 
+class ParseUrlTest(unittest.TestCase):
+    def test_parse_url(self):
+        self.assertEqual(('dm-logv', 'aero-stat'),
+                         parse_url('https://github.com/dm-logv/aero-stat/'))
+        self.assertEqual(('dm-logv', 'aero-stat'),
+                         parse_url('https://github.com/dm-logv/aero-stat/issues'))
+        self.assertEqual(('dm-logv', 'aero-stat'),
+                         parse_url('//github.com/dm-logv/aero-stat/issues'))
+        self.assertEqual(('owner', 'repo'), parse_url('//gh.c/owner/repo/'))
+
+        with self.assertRaises(ValueError):
+            parse_url('gh.c/owner/repo/')
+
+        with self.assertRaises(ValueError):
+            parse_url('//gh.c/owner/')
+
+
 class Api:
     """
     WebApi mock class
@@ -61,7 +78,7 @@ class RepoTest(unittest.TestCase):
         self.assertEqual('http://gh.com', self.repo._root)
 
     def test_path(self):
-        self.assertEqual('http://gh.com/dm-logv/aero-stat', self.repo.path)
+        self.assertEqual('http://gh.com/repos/dm-logv/aero-stat', self.repo.path)
 
     def test_load(self):
         self.repo.load()

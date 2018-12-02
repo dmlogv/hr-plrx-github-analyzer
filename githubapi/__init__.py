@@ -2,7 +2,7 @@
 GitHub Demo API
 """
 
-__all__ = ['Resource', 'Container', 'Repo']
+__all__ = ['parse_url', 'Resource', 'Container', 'Repo']
 __version__ = '0.0.1'
 
 
@@ -12,6 +12,28 @@ import urllib.parse
 
 # Root GitHub URL (https://developer.github.com/v3/#current-version)
 ROOT = 'https://api.github.com'
+
+
+def parse_url(url):
+    """
+    Extract owner and repo from GitHub URL
+
+    Args:
+        url (str): valid link
+
+    Returns:
+        (owner, repo)
+    """
+    parsed_url = urllib.parse.urlsplit(url)
+    if not parsed_url.netloc:
+        raise ValueError(f'Url {url} is not valid')
+    path = parsed_url.path.strip('/')
+    try:
+        owner, repo, *_ = path.split('/')
+    except ValueError:
+        raise ValueError(f'Url {url} does not contain path to repo')
+
+    return owner, repo
 
 
 class Resource:
