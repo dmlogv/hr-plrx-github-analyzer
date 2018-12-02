@@ -77,9 +77,12 @@ class Repo(Resource):
         super().__init__(self._api, path)
 
     def load_containers(self):
-        self.contributors = Contributors(self._api, self.contributors_url)
-        self.pulls = Pulls(self._api, self.pulls_url)
-        self.issues = Issues(self._api, self.issues_url)
+        # Bypass empty API arguments
+        empty_substitute = {'/number': ''}
+
+        self.contributors = Contributors(self._api, self.contributors_url.format(None)).load()
+        self.pulls = Pulls(self._api, self.pulls_url.format(**empty_substitute)).load()
+        self.issues = Issues(self._api, self.issues_url.format(**empty_substitute)).load()
 
         return self
 
