@@ -58,13 +58,14 @@ class Repo(Resource):
     Repository API
     """
     def __init__(self, requestapi, owner, repository, api_root=ROOT):
+        self._api = requestapi
         self._root = api_root
         self.owner = owner
         self.repository = repository
         path = urllib.parse.urljoin(self._root,
                                     posixpath.join(owner, repository))
 
-        super().__init__(requestapi, path)
+        super().__init__(self._api, path)
 
 
 class Contributors(Container):
