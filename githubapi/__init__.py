@@ -41,6 +41,9 @@ class Resource:
         except KeyError:
             raise AttributeError(f'GitHub API does not store `{item}` attribute')
 
+    def __repr__(self):
+        return f'<{self.__class__.__name__} path="{self.path}">'
+
     def load(self):
         self._raw = self._api.get_json(self.path)
 
@@ -53,6 +56,11 @@ class Container(Resource):
 
     def __iter__(self):
         return iter(self._raw)
+
+    def __repr__(self):
+        return (f'<{self.__class__.__name__} '
+                f'path="{self.path}" '
+                f'items={len(self._raw)}>')
 
 
 class Repo(Resource):
