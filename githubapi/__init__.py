@@ -76,8 +76,8 @@ class Repo(Resource):
 
     def load_containers(self):
         self.contributors = Contributors(self._api, self.contributors_url)
-        self.pulls = Pulls(self._api, self.pulls_api)
-        self.issues = Issues(self._api, self.issues_api)
+        self.pulls = Pulls(self._api, self.pulls_url)
+        self.issues = Issues(self._api, self.issues_url)
 
 
 class Contributors(Container):
