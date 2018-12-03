@@ -7,7 +7,7 @@ from . import *
 
 class GetTest(unittest.TestCase):
     def test_valid(self):
-        actual = get('https://api.github.com')
+        actual = str(get('https://api.github.com'))
 
         self.assertIsInstance(actual, str)
         self.assertIn('github', actual)
@@ -21,6 +21,14 @@ class GetTest(unittest.TestCase):
     def test_nonexisting_url(self):
         with self.assertRaises(urllib.error.URLError):
             get('http://localhost/nope')
+
+
+class HeadersTest(unittest.TestCase):
+    def setUp(self):
+        self.response = get('https://api.github.com/repos/fastlane/fastlane/issues?per_page=100')
+
+    def test_has_links(self):
+        self.assertIn('Link', self.response.headers)
 
 
 class GetJsonTest(unittest.TestCase):
