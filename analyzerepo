@@ -15,13 +15,13 @@ def load_arguments():
     parser = argparse.ArgumentParser(description='GitHub repository analysis utility')
 
     parser.add_argument('url', type=str,
-                        metavar='URL', help='repository URL')
+                        metavar='URL', help='repository URL (format: [schema:]//github.com/owner/repo')
     parser.add_argument('-s', '--start-date', type=datetime.date.fromisoformat, default=None,
                         metavar='DATE', help='analysis start date (yyy-MM-dd format) or unlimited')
     parser.add_argument('-e', '--end-date', type=datetime.date.fromisoformat, default=None,
                         metavar='DATE', help='analysis end date (yyy-MM-dd format) or unlimited')
     parser.add_argument('-b', '--branch', type=str, default='master',
-                        metavar='BRANCH', help='repository branch')
+                        metavar='BRANCH', help='repository branch (default: %(default)s')
 
     return parser.parse_args()
 
