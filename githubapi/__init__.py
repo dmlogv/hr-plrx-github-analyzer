@@ -90,6 +90,12 @@ class Container(Resource):
                 f'items={len(self._raw)}>')
 
     def load(self):
+        """
+        Load container with pagination support
+
+        Returns:
+            Container
+        """
         self._response = self._api.get()
         self._raw = self._response.json()
 
@@ -124,6 +130,12 @@ class Repo(Resource):
         super().__init__(self._api, path)
 
     def load_containers(self):
+        """
+        Load resource containers
+
+        Returns:
+            Repo
+        """
         # Bypass empty API arguments
         empty_substitute = {'/number': ''}
 

@@ -13,8 +13,20 @@ import json
 
 
 class Headers:
+    """
+    HTTP Headers
+    """
     @staticmethod
     def _parse_links(links):
+        """
+        HTTP Link Header
+
+        Args:
+            links (str): Raw HTTP Link Header
+
+        Returns:
+            dict(rel, url)
+        """
         if not links:
             return None
 
@@ -56,6 +68,12 @@ class Response:
         return self.response.read().decode()
 
     def get(self, url):
+        """
+        Load via HTTP Get method
+
+        Args:
+            url (str): resource URL
+        """
         if not url:
             raise AttributeError('Empty URL')
 
