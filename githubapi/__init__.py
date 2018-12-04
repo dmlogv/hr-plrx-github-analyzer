@@ -93,6 +93,12 @@ class Container(Resource):
         self._response = self._api.get()
         self._raw = self._response.json()
 
+        while True:
+            next_url = self._response.headers.links.get('next')
+            if not next_url:
+                break
+            self._raw.expand(self._response.json())
+
         return self
 
 
