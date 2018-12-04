@@ -88,7 +88,7 @@ class Response:
         Returns:
             dict or list
         """
-        return json.load(self.response)
+        return json.loads(str(self))
 
 
 def get(url):
