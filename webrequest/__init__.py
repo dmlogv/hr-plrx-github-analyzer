@@ -12,6 +12,10 @@ import urllib.request
 import json
 
 
+def use_auth(user, password):
+    pass
+
+
 class Headers:
     """
     HTTP Headers

@@ -45,6 +45,9 @@ def main():
 
     print(url, start_date, end_date, branch)
 
+    if user and password:
+        webrequest.use_auth(user, password)
+
     repo = githubapi.Repo(webrequest, *githubapi.parse_url(url)) \
         .load() \
         .load_containers()
