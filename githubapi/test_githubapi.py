@@ -25,6 +25,27 @@ class Api:
     WebApi mock class
     """
     @staticmethod
+    def get(url):
+        """
+        Returns Response-like object
+
+        Args:
+            url (str): mock URL
+
+        Returns:
+            Response
+        """
+        class Response:
+            def __init__(self, url):
+                self.url = url
+                self.headers = None
+
+            def json(self):
+                return {'url': url}
+
+        return Response(url)
+
+    @staticmethod
     def get_json(url):
         """
         Returns JSON-like dict
@@ -35,7 +56,7 @@ class Api:
         Returns:
             dict
         """
-        return {'url': url}
+        return Api.get(url).json
 
 
 class ResourceTest(unittest.TestCase):
