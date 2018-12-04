@@ -96,7 +96,7 @@ class Container(Resource):
         Returns:
             Container
         """
-        self._response = self._api.get()
+        self._response = self._api.get(self.path)
         self._raw = self._response.json()
 
         while True:
