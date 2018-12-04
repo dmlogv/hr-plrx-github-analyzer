@@ -49,6 +49,7 @@ class Resource:
             path: resource URL
         """
         self._api = requestapi
+        self._response = None
         # Parsed resource response
         self._raw = {}
 
@@ -67,12 +68,16 @@ class Resource:
         return f'<{self.__class__.__name__} path="{self.path}">'
 
     def load(self):
-        self._raw = self._api.get_json(self.path)
+        self._response = self._api.get(self.path)
+        self._raw = self._response.json()
 
         return self
 
 
 class Container(Resource):
+    """
+    Web resources container
+    """
     def __getitem__(self, item):
         return self._raw[item]
 
@@ -83,6 +88,26 @@ class Container(Resource):
         return (f'<{self.__class__.__name__} '
                 f'path="{self.path}" '
                 f'items={len(self._raw)}>')
+
+    def load(self):
+        """
+        Load container with pagination support
+
+        Returns:
+            Container
+        """
+        self._response = self._api.get(self.path)
+        self._raw = self._response.json()
+
+        current = self._response
+        while True:
+            next_url = current.headers.links.get('next')
+            if not next_url:
+                break
+            current = self._api.get(next_url)
+            self._raw.extend(current.json())
+
+        return self
 
 
 class Repo(Resource):
@@ -107,6 +132,12 @@ class Repo(Resource):
         super().__init__(self._api, path)
 
     def load_containers(self):
+        """
+        Load resource containers
+
+        Returns:
+            Repo
+        """
         # Bypass empty API arguments
         empty_substitute = {'/number': ''}
 

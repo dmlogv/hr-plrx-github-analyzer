@@ -12,6 +12,38 @@ import urllib.request
 import json
 
 
+class Headers:
+    """
+    HTTP Headers
+    """
+    @staticmethod
+    def _parse_links(links):
+        """
+        HTTP Link Header
+
+        Args:
+            links (str): Raw HTTP Link Header
+
+        Returns:
+            dict(rel, url)
+        """
+        if not links:
+            return None
+
+        # Sorry for it all
+        # Replace '<', '>', ' '
+        cleaned = links.translate(str.maketrans(dict.fromkeys('<> ')))
+        # Split separate links by rel
+        by_rel = [link.split(';') for link in cleaned.split(',')]
+        # Split rel from URL
+        by_fields = {rel.replace('rel="', '').replace('"', ''): url for url, rel in by_rel}
+        return by_fields
+
+    def __init__(self, headers):
+        self._headers = headers
+        self.links = self._parse_links(self._headers.get('Link'))
+
+
 class Response:
     """
     HTTP Response object
@@ -19,7 +51,7 @@ class Response:
     def __init__(self, url):
         self.url = None
         self.response = None
-        self.headers = {}
+        self.headers = None
 
         self.get(url)
 
@@ -36,12 +68,18 @@ class Response:
         return self.response.read().decode()
 
     def get(self, url):
+        """
+        Load via HTTP Get method
+
+        Args:
+            url (str): resource URL
+        """
         if not url:
             raise AttributeError('Empty URL')
 
         self.url = url
         self.response = urllib.request.urlopen(self.url)
-        self.headers = dict(self.response.info())
+        self.headers = Headers(self.response.info())
 
     def json(self):
         """
@@ -50,7 +88,7 @@ class Response:
         Returns:
             dict or list
         """
-        return json.load(self.response)
+        return json.loads(str(self))
 
 
 def get(url):

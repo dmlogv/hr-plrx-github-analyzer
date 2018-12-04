@@ -4,6 +4,9 @@ import argparse
 import datetime
 import sys
 
+import githubapi
+import webrequest
+
 
 def load_arguments():
     """
@@ -35,6 +38,12 @@ def main():
     branch = args.branch
 
     print(url, start_date, end_date, branch)
+
+    repo = githubapi.Repo(webrequest, *githubapi.parse_url(url)) \
+        .load() \
+        .load_containers()
+
+    print(repo)
 
 
 if __name__ == '__main__':
