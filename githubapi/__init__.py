@@ -40,7 +40,7 @@ class Resource:
     """
     Web resource base class
     """
-    def __init__(self, requestapi, path):
+    def __init__(self, requestapi, path, **kwargs):
         """
         Initialize web resource
 
@@ -49,6 +49,7 @@ class Resource:
             path: resource URL
         """
         self._api = requestapi
+        self._api_kwargs = kwargs
         self._response = None
         # Parsed resource response
         self._raw = {}
@@ -68,7 +69,7 @@ class Resource:
         return f'<{self.__class__.__name__} path="{self.path}">'
 
     def load(self):
-        self._response = self._api.get(self.path)
+        self._response = self._api.get(self.path, **self._api_kwargs)
         self._raw = self._response.json()
 
         return self
@@ -96,7 +97,7 @@ class Container(Resource):
         Returns:
             Container
         """
-        self._response = self._api.get(self.path)
+        self._response = self._api.get(self.path, **self._api_kwargs)
         self._raw = self._response.json()
 
         current = self._response
@@ -104,7 +105,7 @@ class Container(Resource):
             next_url = current.headers.links.get('next')
             if not next_url:
                 break
-            current = self._api.get(next_url)
+            current = self._api.get(next_url, **self._api_kwargs)
             self._raw.extend(current.json())
 
         return self
@@ -116,8 +117,7 @@ class Repo(Resource):
     """
     resource_url = 'repos'
 
-    def __init__(self, requestapi, owner, repository, api_root=ROOT):
-        self._api = requestapi
+    def __init__(self, requestapi, owner, repository, api_root=ROOT, **kwargs):
         self._root = api_root
         self.owner = owner
         self.repository = repository
@@ -129,7 +129,7 @@ class Repo(Resource):
         path = urllib.parse.urljoin(self._root, posixpath.join(
             self.resource_url, owner, repository))
 
-        super().__init__(self._api, path)
+        super().__init__(requestapi, path, **kwargs)
 
     def load_containers(self):
         """
@@ -141,9 +141,9 @@ class Repo(Resource):
         # Bypass empty API arguments
         empty_substitute = {'/number': ''}
 
-        self.contributors = Contributors(self._api, self.contributors_url.format(None)).load()
-        self.pulls = Pulls(self._api, self.pulls_url.format(**empty_substitute)).load()
-        self.issues = Issues(self._api, self.issues_url.format(**empty_substitute)).load()
+        self.contributors = Contributors(self._api, self.contributors_url.format(None), **self._api_kwargs).load()
+        self.pulls = Pulls(self._api, self.pulls_url.format(**empty_substitute), **self._api_kwargs).load()
+        self.issues = Issues(self._api, self.issues_url.format(**empty_substitute), **self._api_kwargs).load()
 
         return self
 

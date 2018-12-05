@@ -25,6 +25,10 @@ def load_arguments():
                         metavar='DATE', help='analysis end date (yyy-MM-dd format) or unlimited')
     parser.add_argument('-b', '--branch', type=str, default='master',
                         metavar='BRANCH', help='repository branch (default: %(default)s')
+    parser.add_argument('-u', '--user', type=str, default=None,
+                        metavar='USER', help='GitHub login')
+    parser.add_argument('-p', '--password', type=str, default=None,
+                        metavar='PASSW0!D', help='GitHub password')
 
     return parser.parse_args()
 
@@ -36,10 +40,10 @@ def main():
     start_date = args.start_date and datetime.date.fromisoformat(args.start_date)
     end_date = args.end_date and datetime.date.fromisoformat(args.end_date)
     branch = args.branch
+    credentials = (args.user, args.password)
 
     print(url, start_date, end_date, branch)
-
-    repo = githubapi.Repo(webrequest, *githubapi.parse_url(url)) \
+    repo = githubapi.Repo(webrequest, *githubapi.parse_url(url), credentials=credentials) \
         .load() \
         .load_containers()
 
