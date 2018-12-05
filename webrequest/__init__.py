@@ -8,12 +8,9 @@ __all__ = ['get', 'get_json']
 __version__ = '0.0.1'
 
 
+import base64
 import urllib.request
 import json
-
-
-def use_auth(user, password):
-    pass
 
 
 class Headers:
@@ -52,10 +49,12 @@ class Response:
     """
     HTTP Response object
     """
-    def __init__(self, url):
+    def __init__(self, url, credentials=()):
         self.url = None
         self.response = None
         self.headers = None
+
+        self._credentials = credentials
 
         self.get(url)
 
@@ -71,6 +70,20 @@ class Response:
         """
         return self.response.read().decode()
 
+    @property
+    def credentials(self):
+        """
+        Format credential to HTTP Header format
+
+        Returns:
+            str
+        """
+        if not self._credentials:
+            return None
+        credentials = '{}:{}'.format(*self._credentials)
+        encoded = base64.b64encode(credentials.encode('ascii'))
+        return 'Basic {}'.format(encoded.decode('ascii'))
+
     def get(self, url):
         """
         Load via HTTP Get method
@@ -82,7 +95,12 @@ class Response:
             raise AttributeError('Empty URL')
 
         self.url = url
-        self.response = urllib.request.urlopen(self.url)
+        if self.credentials:
+            request = urllib.request.Request(url)
+            request.add_header('Authorization', self.credentials)
+            self.response = urllib.request.urlopen(request)
+        else:
+            self.response = urllib.request.urlopen(self.url)
         self.headers = Headers(self.response.info())
 
     def json(self):
@@ -95,27 +113,29 @@ class Response:
         return json.loads(str(self))
 
 
-def get(url):
+def get(url, credentials=()):
     """
     Returns HTTP GET response
 
     Args:
         url (str): source URL
+        credentials (tuple): login, password
 
     Returns:
         str
     """
-    return Response(url)
+    return Response(url, credentials=credentials)
 
 
-def get_json(url):
+def get_json(url, credentials=()):
     """
     Returns HTTP GET response as JSON-dict
 
     Args:
         url (str): source URL
+        credentials (tuple): login, password
 
     Returns:
         dict
     """
-    return Response(url).json()
+    return Response(url, credentials=credentials).json()
