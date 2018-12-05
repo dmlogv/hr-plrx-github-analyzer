@@ -40,15 +40,10 @@ def main():
     start_date = args.start_date and datetime.date.fromisoformat(args.start_date)
     end_date = args.end_date and datetime.date.fromisoformat(args.end_date)
     branch = args.branch
-    user = args.user
-    password = args.password
+    credentials = (args.user, args.password)
 
     print(url, start_date, end_date, branch)
-
-    if user and password:
-        webrequest.use_auth(user, password)
-
-    repo = githubapi.Repo(webrequest, *githubapi.parse_url(url)) \
+    repo = githubapi.Repo(webrequest, *githubapi.parse_url(url), credentials=credentials) \
         .load() \
         .load_containers()
 
