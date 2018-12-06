@@ -5,6 +5,7 @@ Repository analyzer
 __all__ = []
 __version__ = '0.0.1'
 
+import datetime
 import operator
 
 
@@ -65,9 +66,20 @@ class Report:
             }
 
 
+class DateLimitedReport(Report):
+    """
+    Repository analysis limited by resource dates
+    """
+    def __init__(self, repo, start_date, end_date):
+        super().__init__(repo)
+
+        self.start_date = start_date or datetime.datetime(1900, 1, 1)
+        self.end_date = end_date or datetime.datetime.now()
+
+
 class ActiveContributors(Report):
     """
-    Top of repository contributors.
+    Top of repository contributors
 
     Returns logins and number of their commits in reversed order.
     """
