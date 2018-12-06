@@ -125,3 +125,33 @@ class OpenedClosedPulls(DateLimitedReport):
         self.results = [(opened, closed)]
 
         return self
+
+
+class OldPulls(DateLimitedReport):
+    """
+    Number of old pull-requests (non-closed in N days)
+    """
+    name = 'Old pull-requests'
+    headers = ('Old pulls number',)
+
+    def __init__(self, repo, start_date, end_date, days=30):
+        """
+        Args:
+            days (int): days to old
+        """
+        super().__init__(repo, start_date, end_date)
+
+        self.days = days
+
+    def analyze(self):
+        pulls = [1 for p in self.repo.pulls
+                 if (p.created_at >= self.start_date
+                     and (p.closed_at is None
+                          or p.closed_at < self.end_date)
+
+                     and ((p.closed_at or self.end_date)
+                          - p.created_at).days > self.days)]
+
+        self.results = [[len(pulls)]]
+
+        return self
