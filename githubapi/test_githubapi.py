@@ -25,7 +25,7 @@ class Api:
     WebApi mock class
     """
     @staticmethod
-    def get(url):
+    def get(url, **kwargs):
         """
         Returns Response-like object
 
@@ -41,12 +41,12 @@ class Api:
                 self.headers = None
 
             def json(self):
-                return {'url': url}
+                return {'url': self.url}
 
         return Response(url)
 
     @staticmethod
-    def get_json(url):
+    def get_json(url, **kwargs):
         """
         Returns JSON-like dict
 
@@ -56,7 +56,7 @@ class Api:
         Returns:
             dict
         """
-        return Api.get(url).json
+        return Api.get(url, **kwargs).json
 
 
 class ResourceTest(unittest.TestCase):
@@ -91,7 +91,7 @@ class ContainerTest(unittest.TestCase):
 
 class RepoTest(unittest.TestCase):
     def setUp(self):
-        self.repo = Repo(Api, 'dm-logv', 'aero-stat', 'http://gh.com')
+        self.repo = Repo('dm-logv', 'aero-stat', 'http://gh.com', Api)
 
     def test_init(self):
         self.assertEqual('dm-logv', self.repo.owner)
