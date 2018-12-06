@@ -20,9 +20,9 @@ def load_arguments():
 
     parser.add_argument('url', type=str,
                         metavar='URL', help='repository URL (format: [schema:]//github.com/owner/repo')
-    parser.add_argument('-s', '--start-date', type=datetime.date.fromisoformat, default=None,
+    parser.add_argument('-s', '--start-date', type=str, default=None,
                         metavar='DATE', help='analysis start date (yyy-MM-dd format) or unlimited')
-    parser.add_argument('-e', '--end-date', type=datetime.date.fromisoformat, default=None,
+    parser.add_argument('-e', '--end-date', type=str, default=None,
                         metavar='DATE', help='analysis end date (yyy-MM-dd format) or unlimited')
     parser.add_argument('-b', '--branch', type=str, default='master',
                         metavar='BRANCH', help='repository branch (default: %(default)s')
@@ -34,12 +34,27 @@ def load_arguments():
     return parser.parse_args()
 
 
+def todatetime(s):
+    """
+    Cast date-time ISO string to
+
+    Args:
+        s (str): valid ISO date-time
+
+    Returns:
+        datetime.datetime or None
+    """
+    return s and datetime.datetime.combine(
+        datetime.date.fromisoformat(s),
+        datetime.datetime.min.time())
+
+
 def main():
     args = load_arguments()
 
     url = args.url
-    start_date = args.start_date and datetime.date.fromisoformat(args.start_date)
-    end_date = args.end_date and datetime.date.fromisoformat(args.end_date)
+    start_date = todatetime(args.start_date)
+    end_date = todatetime(args.end_date)
     branch = args.branch
     credentials = (args.user, args.password)
 
