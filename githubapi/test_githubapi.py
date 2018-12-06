@@ -20,6 +20,17 @@ class ParseUrlTest(unittest.TestCase):
             parse_url('//gh.c/owner/')
 
 
+class AddUrlParamsTest(unittest.TestCase):
+    def test_add_url_params(self):
+        self.assertEqual('http://s.wr/person/?name=Luke&surname=Skywalker',
+                         add_url_params('http://s.wr/person/', {
+                             'name': 'Luke',
+                             'surname': 'Skywalker'
+                             }))
+        self.assertEqual('http://s.wr/person',
+                         add_url_params('http://s.wr/person', {}))
+
+
 class Api:
     """
     WebApi mock class

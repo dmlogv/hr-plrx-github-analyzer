@@ -2,7 +2,7 @@
 GitHub Demo API
 """
 
-__all__ = ['parse_url', 'Resource', 'Container', 'Repo']
+__all__ = ['parse_url', 'add_url_params', 'Resource', 'Container', 'Repo']
 __version__ = '0.0.1'
 
 
@@ -34,6 +34,25 @@ def parse_url(url):
         raise ValueError(f'Url {url} does not contain path to repo')
 
     return owner, repo
+
+
+def add_url_params(url, params):
+    """
+    Add parameters to URL
+
+    Args:
+        url (str): base URL
+        params (dict):
+
+    Returns:
+        str: URL
+    """
+    parts = list(urllib.parse.urlparse(url))
+    existing_params = urllib.parse.parse_qs(parts[4])
+    existing_params.update(params)
+    parts[4] = urllib.parse.urlencode(existing_params)
+
+    return urllib.parse.urlunparse(parts)
 
 
 class Resource:
@@ -100,6 +119,7 @@ class Container(Resource):
     """
     Web resources container
     """
+
     def __getitem__(self, item):
         return self._raw[item]
 
@@ -136,6 +156,7 @@ class Repo(Resource):
     Repository API
     """
     resource_url = 'repos'
+    params = {'per_page': 100}
 
     def __init__(self, owner, repository, api_root=ROOT, api=None, **kwargs):
         self._root = api_root
@@ -160,19 +181,18 @@ class Repo(Resource):
         """
         # Bypass empty API arguments
         empty_substitute = {'/number': ''}
-        per_page = 'per_page=100'
 
         self.contributors = Contributors().load(
             self._api,
-            self.contributors_url.format(None) + f'?{per_page}',
+            add_url_params(self.contributors_url.format(None), self.params),
             **self._api_kwargs)
         self.pulls = Pulls().load(
             self._api,
-            self.pulls_url.format(**empty_substitute) + f'?{per_page}',
+            add_url_params(self.pulls_url.format(**empty_substitute), self.params),
             **self._api_kwargs)
         self.issues = Issues().load(
             self._api,
-            self.issues_url.format(**empty_substitute) + f'?{per_page}',
+            add_url_params(self.issues_url.format(**empty_substitute), self.params),
             **self._api_kwargs)
 
         return self
