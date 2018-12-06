@@ -104,16 +104,15 @@ class ParsedResourceTest(unittest.TestCase):
             self.resource.load(path='b', api=None)
 
 
-
 class ContainerTest(unittest.TestCase):
     def setUp(self):
         self.container = Container(None, None)
-        self.container._raw = [{'name': 'Mike'},
-                               {'name': 'Nick'},
-                               {'name': 'Oak'}]
+        self.container.parse([{'name': 'Mike'},
+                              {'name': 'Nick'},
+                              {'name': 'Oak'}])
 
     def test_index(self):
-        self.assertEqual({'name': 'Nick'}, self.container[1])
+        self.assertEqual({'name': 'Nick'}, self.container[1]._raw)
         with self.assertRaises(IndexError):
             self.container[10]
 

@@ -6,6 +6,7 @@ __all__ = ['parse_url', 'add_url_params', 'Resource', 'Container', 'Repo']
 __version__ = '0.0.1'
 
 
+import datetime
 import posixpath
 import urllib.parse
 
@@ -59,6 +60,8 @@ class Resource:
     """
     Web resource base class
     """
+    dtm_format = '%Y-%m-%dT%H:%M:%SZ'
+
     def __init__(self, api=None, path=None, **kwargs):
         """
         Initialize web resource
@@ -110,7 +113,25 @@ class Resource:
             raise ValueError('path argument did not present')
 
         self._response = self._api.get(self.path, **self._api_kwargs)
-        self._raw = self._response.json()
+        self.parse(self._response.json())
+
+        return self
+
+    def parse(self, data):
+        """
+        Assign JSON data to Resource data with type conversion
+
+        Args:
+            data (dict): resource data
+
+        Returns:
+            Resource
+        """
+        self._raw = data
+
+        for k, v in self._raw.items():
+            if k.endswith('_at'):
+                self._raw[k] = v and datetime.datetime.strptime(v, self.dtm_format)
 
         return self
 
@@ -119,12 +140,18 @@ class Container(Resource):
     """
     Web resources container
     """
+    item_type = Resource
+
+    def __init__(self, api=None, path=None, **kwargs):
+        super().__init__(api=None, path=None, **kwargs)
+
+        self.items = []
 
     def __getitem__(self, item):
-        return self._raw[item]
+        return self.items[item]
 
     def __iter__(self):
-        return iter(self._raw)
+        return iter(self.items)
 
     def __repr__(self):
         return (f'<{self.__class__.__name__} '
@@ -147,6 +174,24 @@ class Container(Resource):
                 break
             current = self._api.get(next_url, **self._api_kwargs)
             self._raw.extend(current.json())
+
+        return self
+
+    def parse(self, data, resource=None):
+        """
+        Assign JSON data to Container data
+
+        Args:
+            data (list): resource data
+            resource (type): conversion type
+
+        Returns:
+            Resource
+        """
+        resource = resource or self.item_type
+
+        self._raw = data
+        self.items = [resource().parse(item) for item in self._raw]
 
         return self
 
@@ -202,22 +247,43 @@ class Repo(Resource):
         return self
 
 
-class Contributors(Container):
+class Contributor(Resource):
     """
     Repository Contributor API
     """
     pass
 
 
-class Pulls(Container):
+class Pull(Resource):
     """
     Repository Pull-request API
     """
     pass
 
 
-class Issues(Container):
+class Issue(Resource):
     """
     Repository Issue API
     """
     pass
+
+
+class Contributors(Container):
+    """
+    Repository Contributor API
+    """
+    item_type = Contributor
+
+
+class Pulls(Container):
+    """
+    Repository Pull-request API
+    """
+    item_type = Pull
+
+
+class Issues(Container):
+    """
+    Repository Issue API
+    """
+    item_type = Issue
