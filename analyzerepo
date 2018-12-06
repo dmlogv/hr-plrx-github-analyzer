@@ -5,6 +5,7 @@ import datetime
 import sys
 
 import githubapi
+import repoanalyzer
 import webrequest
 
 
@@ -48,6 +49,10 @@ def main():
         .load_containers()
 
     print(repo)
+
+    reports = [repoanalyzer.ActiveContributors(repo).analyze()]
+    for report in reports:
+        print(report.table())
 
 
 if __name__ == '__main__':

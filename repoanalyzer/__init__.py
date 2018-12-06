@@ -5,6 +5,8 @@ Repository analyzer
 __all__ = []
 __version__ = '0.0.1'
 
+import operator
+
 
 class Report:
     """
@@ -62,3 +64,32 @@ class Report:
                 ]
             }
 
+
+class ActiveContributors(Report):
+    """
+    Top of repository contributors.
+
+    Returns logins and number of their commits in reversed order.
+    """
+    name = 'Active contributors'
+    headers = ('Login', 'Commit number')
+
+    def __init__(self, repo, top=30):
+        """
+
+        Args:
+            repo: repository
+            top: number of contributors to output
+        """
+        super().__init__(repo)
+
+        self.top = top
+
+    def analyze(self):
+        contributors = [(c.login, c.contributions)
+                        for c in self.repo.contributors]
+        contributors.sort(key=operator.itemgetter(1), reverse=True)
+
+        self.results = contributors[:self.top]
+
+        return self
