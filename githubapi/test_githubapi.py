@@ -20,6 +20,17 @@ class ParseUrlTest(unittest.TestCase):
             parse_url('//gh.c/owner/')
 
 
+class AddUrlParamsTest(unittest.TestCase):
+    def test_add_url_params(self):
+        self.assertEqual('http://s.wr/person/?name=Luke&surname=Skywalker',
+                         add_url_params('http://s.wr/person/', {
+                             'name': 'Luke',
+                             'surname': 'Skywalker'
+                             }))
+        self.assertEqual('http://s.wr/person',
+                         add_url_params('http://s.wr/person', {}))
+
+
 class Api:
     """
     WebApi mock class
@@ -59,7 +70,7 @@ class Api:
         return Api.get(url, **kwargs).json
 
 
-class ResourceTest(unittest.TestCase):
+class LoadedResourceTest(unittest.TestCase):
     def setUp(self):
         self.resource = Resource(Api, 'http://contoso.com')
         self.resource.load()
@@ -72,15 +83,36 @@ class ResourceTest(unittest.TestCase):
             self.resource.jabba_the_hutt
 
 
+class ParsedResourceTest(unittest.TestCase):
+    def setUp(self):
+        self.resource = Resource()
+
+    def test_empty(self):
+        with self.assertRaises(ValueError):
+            self.resource.load()
+
+    def test_empty_path(self):
+        with self.assertRaises(ValueError):
+            self.resource.load(api=Api)
+        with self.assertRaises(ValueError):
+            self.resource.load(api=Api, path='')
+
+    def test_empty_api(self):
+        with self.assertRaises(ValueError):
+            self.resource.load(path='b')
+        with self.assertRaises(ValueError):
+            self.resource.load(path='b', api=None)
+
+
 class ContainerTest(unittest.TestCase):
     def setUp(self):
         self.container = Container(None, None)
-        self.container._raw = [{'name': 'Mike'},
-                               {'name': 'Nick'},
-                               {'name': 'Oak'}]
+        self.container.parse([{'name': 'Mike'},
+                              {'name': 'Nick'},
+                              {'name': 'Oak'}])
 
     def test_index(self):
-        self.assertEqual({'name': 'Nick'}, self.container[1])
+        self.assertEqual({'name': 'Nick'}, self.container[1]._raw)
         with self.assertRaises(IndexError):
             self.container[10]
 
