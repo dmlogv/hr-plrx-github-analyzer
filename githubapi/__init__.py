@@ -40,21 +40,22 @@ class Resource:
     """
     Web resource base class
     """
-    def __init__(self, requestapi, path, **kwargs):
+    def __init__(self, api=None, path=None, **kwargs):
         """
         Initialize web resource
 
         Args:
-            requestapi: REST API methods class
+            api: REST API methods class
             path: resource URL
+            **kwargs: API arguments
         """
-        self._api = requestapi
+        self._api = api
         self._api_kwargs = kwargs
+        self.path = path
+
         self._response = None
         # Parsed resource response
         self._raw = {}
-
-        self.path = path
 
     def __getattr__(self, item):
         """
@@ -68,7 +69,22 @@ class Resource:
     def __repr__(self):
         return f'<{self.__class__.__name__} path="{self.path}">'
 
-    def load(self):
+    def load(self, api=None, path=None, **kwargs):
+        """
+        Load web resource
+
+        Args:
+            api: REST API methods class
+            path: resource URL
+            **kwargs: API arguments
+
+        Returns:
+            Resource
+        """
+        self._api = api or self._api
+        self.path = path or self.path
+        self._api_kwargs = kwargs or self._api_kwargs
+
         self._response = self._api.get(self.path, **self._api_kwargs)
         self._raw = self._response.json()
 
@@ -90,15 +106,14 @@ class Container(Resource):
                 f'path="{self.path}" '
                 f'items={len(self._raw)}>')
 
-    def load(self):
+    def load(self, api=None, path=None, **kwargs):
         """
         Load container with pagination support
 
         Returns:
             Container
         """
-        self._response = self._api.get(self.path, **self._api_kwargs)
-        self._raw = self._response.json()
+        super().load(api, path, **kwargs)
 
         current = self._response
         while True:
@@ -117,7 +132,7 @@ class Repo(Resource):
     """
     resource_url = 'repos'
 
-    def __init__(self, requestapi, owner, repository, api_root=ROOT, **kwargs):
+    def __init__(self, owner, repository, api_root=ROOT, api=None, **kwargs):
         self._root = api_root
         self.owner = owner
         self.repository = repository
@@ -129,7 +144,7 @@ class Repo(Resource):
         path = urllib.parse.urljoin(self._root, posixpath.join(
             self.resource_url, owner, repository))
 
-        super().__init__(requestapi, path, **kwargs)
+        super().__init__(api, path, **kwargs)
 
     def load_containers(self):
         """
@@ -142,12 +157,18 @@ class Repo(Resource):
         empty_substitute = {'/number': ''}
         per_page = 'per_page=100'
 
-        self.contributors = Contributors(self._api, self.contributors_url.format(None) + f'?{per_page}',
-                                         **self._api_kwargs).load()
-        self.pulls = Pulls(self._api, self.pulls_url.format(**empty_substitute) + f'?{per_page}',
-                           **self._api_kwargs).load()
-        self.issues = Issues(self._api, self.issues_url.format(**empty_substitute) + f'?{per_page}',
-                             **self._api_kwargs).load()
+        self.contributors = Contributors().load(
+            self._api,
+            self.contributors_url.format(None) + f'?{per_page}',
+            **self._api_kwargs)
+        self.pulls = Pulls().load(
+            self._api,
+            self.pulls_url.format(**empty_substitute) + f'?{per_page}',
+            **self._api_kwargs)
+        self.issues = Issues().load(
+            self._api,
+            self.issues_url.format(**empty_substitute) + f'?{per_page}',
+            **self._api_kwargs)
 
         return self
 

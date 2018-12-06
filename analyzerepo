@@ -43,7 +43,7 @@ def main():
     credentials = (args.user, args.password)
 
     print(url, start_date, end_date, branch)
-    repo = githubapi.Repo(webrequest, *githubapi.parse_url(url), credentials=credentials) \
+    repo = githubapi.Repo(*githubapi.parse_url(url), api=webrequest, credentials=credentials) \
         .load() \
         .load_containers()
 
