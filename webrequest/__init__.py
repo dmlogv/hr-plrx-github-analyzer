@@ -42,7 +42,7 @@ class Headers:
 
     def __init__(self, headers):
         self._headers = headers
-        self.links = self._parse_links(self._headers.get('Link'))
+        self.links = self._parse_links(self._headers.get('Link')) or {}
 
 
 class Response:
