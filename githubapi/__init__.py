@@ -140,10 +140,14 @@ class Repo(Resource):
         """
         # Bypass empty API arguments
         empty_substitute = {'/number': ''}
+        per_page = 'per_page=100'
 
-        self.contributors = Contributors(self._api, self.contributors_url.format(None), **self._api_kwargs).load()
-        self.pulls = Pulls(self._api, self.pulls_url.format(**empty_substitute), **self._api_kwargs).load()
-        self.issues = Issues(self._api, self.issues_url.format(**empty_substitute), **self._api_kwargs).load()
+        self.contributors = Contributors(self._api, self.contributors_url.format(None) + f'?{per_page}',
+                                         **self._api_kwargs).load()
+        self.pulls = Pulls(self._api, self.pulls_url.format(**empty_substitute) + f'?{per_page}',
+                           **self._api_kwargs).load()
+        self.issues = Issues(self._api, self.issues_url.format(**empty_substitute) + f'?{per_page}',
+                             **self._api_kwargs).load()
 
         return self
 
