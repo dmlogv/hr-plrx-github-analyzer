@@ -59,7 +59,7 @@ class Api:
         return Api.get(url, **kwargs).json
 
 
-class ResourceTest(unittest.TestCase):
+class LoadedResourceTest(unittest.TestCase):
     def setUp(self):
         self.resource = Resource(Api, 'http://contoso.com')
         self.resource.load()
@@ -70,6 +70,28 @@ class ResourceTest(unittest.TestCase):
     def test_get_not_existing_attr(self):
         with self.assertRaises(AttributeError):
             self.resource.jabba_the_hutt
+
+
+class ParsedResourceTest(unittest.TestCase):
+    def setUp(self):
+        self.resource = Resource()
+
+    def test_empty(self):
+        with self.assertRaises(ValueError):
+            self.resource.load()
+
+    def test_empty_path(self):
+        with self.assertRaises(ValueError):
+            self.resource.load(api=Api)
+        with self.assertRaises(ValueError):
+            self.resource.load(api=Api, path='')
+
+    def test_empty_api(self):
+        with self.assertRaises(ValueError):
+            self.resource.load(path='b')
+        with self.assertRaises(ValueError):
+            self.resource.load(path='b', api=None)
+
 
 
 class ContainerTest(unittest.TestCase):

@@ -85,6 +85,11 @@ class Resource:
         self.path = path or self.path
         self._api_kwargs = kwargs or self._api_kwargs
 
+        if not self._api:
+            raise ValueError('api argument did not present')
+        if not self.path:
+            raise ValueError('path argument did not present')
+
         self._response = self._api.get(self.path, **self._api_kwargs)
         self._raw = self._response.json()
 
