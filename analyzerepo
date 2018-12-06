@@ -65,7 +65,8 @@ def main():
 
     print(repo)
 
-    reports = [repoanalyzer.ActiveContributors(repo).analyze()]
+    reports = [repoanalyzer.ActiveContributors(repo).analyze(),
+               repoanalyzer.OpenedClosedPulls(repo, start_date, end_date).analyze()]
     for report in reports:
         print(report.table())
 

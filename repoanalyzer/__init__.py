@@ -105,3 +105,23 @@ class ActiveContributors(Report):
         self.results = contributors[:self.top]
 
         return self
+
+
+class OpenedClosedPulls(DateLimitedReport):
+    """
+    Number of opened ad closed pull-requests
+    """
+    name = 'Opened and closed pulls'
+    headers = ('Opened', 'Closed')
+
+    def analyze(self):
+        pulls = [p.state for p in self.repo.pulls
+                 if (p.created_at >= self.start_date
+                     and (p.closed_at is None
+                          or p.closed_at < self.end_date))]
+        opened = sum(1 for state in pulls if state == 'open')
+        closed = sum(1 for state in pulls if state == 'closed')
+
+        self.results = [(opened, closed)]
+
+        return self
