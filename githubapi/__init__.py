@@ -201,7 +201,7 @@ class Repo(Resource):
     Repository API
     """
     resource_url = 'repos'
-    params = {'per_page': 100}
+    params = {'per_page': 100, 'state': 'all'}
 
     def __init__(self, owner, repository, api_root=ROOT, api=None, **kwargs):
         self._root = api_root
