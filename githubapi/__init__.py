@@ -172,6 +172,19 @@ class Repo(Resource):
 
         super().__init__(api, path, **kwargs)
 
+    def load_container(self, container, url):
+        """
+        Load resource container
+
+        Args:
+            container(type): Container class
+            url (str): container URL
+
+        Returns:
+            Container
+        """
+        return container().load(self._api, add_url_params(url, self.params), **self._api_kwargs)
+
     def load_containers(self):
         """
         Load resource containers
@@ -182,18 +195,9 @@ class Repo(Resource):
         # Bypass empty API arguments
         empty_substitute = {'/number': ''}
 
-        self.contributors = Contributors().load(
-            self._api,
-            add_url_params(self.contributors_url.format(None), self.params),
-            **self._api_kwargs)
-        self.pulls = Pulls().load(
-            self._api,
-            add_url_params(self.pulls_url.format(**empty_substitute), self.params),
-            **self._api_kwargs)
-        self.issues = Issues().load(
-            self._api,
-            add_url_params(self.issues_url.format(**empty_substitute), self.params),
-            **self._api_kwargs)
+        self.contributors = self.load_container(Contributors, self.contributors_url.format(None))
+        self.pulls = self.load_container(Pulls, self.pulls_url.format(**empty_substitute))
+        self.issues = self.load_container(Issues, self.issues_url.format(**empty_substitute))
 
         return self
 
