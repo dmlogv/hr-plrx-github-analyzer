@@ -59,7 +59,7 @@ class Report:
             f'{self.name}\n' +
             '-' * len(self.name) + '\n' +
             '\t'.join(map(str, self.headers)) + '\n' +
-            '\n'.join(['\t'.join(map(str, row)) for row in self.results]) + '\n\n'
+            '\n'.join(['\t'.join(map(str, row)) for row in self.results])
             )
 
     def json(self):
