@@ -39,12 +39,9 @@ class Report:
     def __repr__(self):
         return f'<{self.__class__.__name__} "{self.name}" for {self.repo}>'
 
-    def analyze(self, *args, **kwargs):
+    def analyze(self):
         """
         Analyze repository
-
-        Args:
-            *args, **kwargs: analysis options
 
         Returns:
             Report
@@ -200,5 +197,22 @@ class OldPulls(DateLimitedReport):
         pulls = self.filter_old(pulls, self.end_date, self.days)
 
         self.results = [[len(pulls)]]
+
+        return self
+
+
+class OpenedClosedIssues(DateLimitedReport):
+    """
+    Number of opened and closed issues
+    """
+    name = "Opened and closed issues"
+    headers = ('Opened', 'Closed')
+
+    def analyze(self):
+        issues = self.filter_by_date_bounds(self.repo.issues, self.start_date, self.end_date)
+        opened = len(self.filter_by_state(issues, 'opened'))
+        closed = len(self.filter_by_state(issues, 'closed'))
+
+        self.results = [(opened, closed)]
 
         return self
