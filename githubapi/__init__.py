@@ -113,11 +113,11 @@ class Resource:
             raise ValueError('path argument did not present')
 
         self._response = self._api.get(self.path, **self._api_kwargs)
-        self.parse(self._response.json())
+        self._raw = self._response.json()
 
         return self
 
-    def parse(self, data):
+    def parse(self, data=None):
         """
         Assign JSON data to Resource data with type conversion
 
@@ -127,10 +127,11 @@ class Resource:
         Returns:
             Resource
         """
-        self._raw = data
+        if data:
+            self._raw = data
 
         for k, v in self._raw.items():
-            if k.endswith('_at'):
+            if k.endswith('_at') and isinstance(v, str):
                 self._raw[k] = v and datetime.datetime.strptime(v, self.dtm_format)
 
         return self
@@ -177,7 +178,7 @@ class Container(Resource):
 
         return self
 
-    def parse(self, data, resource=None):
+    def parse(self, data=None, resource=None):
         """
         Assign JSON data to Container data
 
@@ -190,7 +191,9 @@ class Container(Resource):
         """
         resource = resource or self.item_type
 
-        self._raw = data
+        if data:
+            self._raw = data
+
         self.items = [resource().parse(item) for item in self._raw]
 
         return self
@@ -228,7 +231,7 @@ class Repo(Resource):
         Returns:
             Container
         """
-        return container().load(self._api, add_url_params(url, self.params), **self._api_kwargs)
+        return container().load(self._api, add_url_params(url, self.params), **self._api_kwargs).parse()
 
     def load_containers(self):
         """
