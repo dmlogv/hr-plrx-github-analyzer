@@ -210,7 +210,7 @@ class OpenedClosedIssues(DateLimitedReport):
 
     def analyze(self):
         issues = self.filter_by_date_bounds(self.repo.issues, self.start_date, self.end_date)
-        opened = len(self.filter_by_state(issues, 'opened'))
+        opened = len(self.filter_by_state(issues, 'open'))
         closed = len(self.filter_by_state(issues, 'closed'))
 
         self.results = [(opened, closed)]
