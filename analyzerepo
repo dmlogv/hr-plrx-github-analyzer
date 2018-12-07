@@ -25,7 +25,7 @@ def load_arguments():
     parser.add_argument('-e', '--end-date', type=str, default=None,
                         metavar='DATE', help='analysis end date (yyy-MM-dd format) or unlimited')
     parser.add_argument('-b', '--branch', type=str, default='master',
-                        metavar='BRANCH', help='repository branch (default: %(default)s')
+                        metavar='BRANCH', help='repository branch (default: %(default)s)')
     parser.add_argument('-u', '--user', type=str, default=None,
                         metavar='USER', help='GitHub login')
     parser.add_argument('-p', '--password', type=str, default=None,
