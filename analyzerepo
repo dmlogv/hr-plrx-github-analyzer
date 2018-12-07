@@ -60,8 +60,7 @@ def main():
 
     print(url, start_date, end_date, branch)
     repo = githubapi.Repo(*githubapi.parse_url(url), api=webrequest, credentials=credentials) \
-        .load() \
-        .load_containers()
+        .load().parse().load_containers()
 
     print(repo)
 
