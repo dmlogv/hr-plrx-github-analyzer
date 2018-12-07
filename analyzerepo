@@ -2,7 +2,7 @@
 
 import argparse
 import datetime
-import pprint
+import json
 
 import githubapi
 import repoanalyzer
@@ -31,7 +31,7 @@ def load_arguments():
     parser.add_argument('-p', '--password', type=str, default=None,
                         metavar='PASSW0!D', help='GitHub password')
     parser.add_argument('-t', '--type', type=str, choices=['table', 'json'], default='table',
-                        metavar='TYPE', help='Output type')
+                        metavar='TYPE', help='Output type (allowed: %(choices)s)')
 
     return parser.parse_args()
 
@@ -64,7 +64,11 @@ def main():
         .load().parse().load_containers()
 
     reports = build_reports(repo, start_date, end_date)
-    print_reports(reports)
+
+    if args.type == 'table':
+        print_reports(reports)
+    elif args.type == 'json':
+        json_reports(reports)
 
 
 def build_reports(repo, start_date, end_date):
@@ -112,7 +116,7 @@ def json_reports(reports):
     Args:
         reports (list(Report)): list of analyzed reports
     """
-    pprint.pprint([report.json() for report in reports])
+    print(json.dumps([report.json() for report in reports], indent=2))
 
 
 if __name__ == '__main__':
