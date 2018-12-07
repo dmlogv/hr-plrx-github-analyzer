@@ -16,6 +16,22 @@ class Report:
     name = 'Main report'
     headers = ()
 
+    @staticmethod
+    def filter_by_state(container, state):
+        """
+        Filter container by item state
+
+        Item have to contains state field.
+
+        Args:
+            container (Container, e. g. githubapi.Container): iterable container
+            state (str): value
+
+        Returns:
+
+        """
+        return [item for item in container if item.state == state]
+
     def __init__(self, repo):
         self.repo = repo
         self.results = []
@@ -70,6 +86,43 @@ class DateLimitedReport(Report):
     """
     Repository analysis limited by resource dates
     """
+    @staticmethod
+    def filter_by_date_bounds(container, start_date, end_date):
+        """
+        Filter container by data bounds.
+
+        Container have to contains created_at, closed_at fields
+
+        Args:
+            container (Container, e. g. githubapi.Container): iterable container
+            start_date (datetime.datetime): min date bound
+            end_date (datetime.datetime): max date bound
+
+        Returns:
+            list
+        """
+        return [item for item in container
+                if (item.created_at >= start_date
+                    and (item.closed_at is None
+                         or item.closed_at < end_date))]
+
+    @staticmethod
+    def filter_old(container, end_date, threshold):
+        """
+        Filter container by difference between created_at and closed_at
+
+        Args:
+            container: Container, e. g. githubapi.Container
+            end_date (datetime.datetime): max date bound
+            threshold (datetime.datetime): max difference
+
+        Returns:
+
+        """
+        return [item for item in container
+                if ((item.closed_at or end_date)
+                    - item.created_at).days > threshold]
+
     def __init__(self, repo, start_date, end_date):
         super().__init__(repo)
 
@@ -115,12 +168,10 @@ class OpenedClosedPulls(DateLimitedReport):
     headers = ('Opened', 'Closed')
 
     def analyze(self):
-        pulls = [p.state for p in self.repo.pulls
-                 if (p.created_at >= self.start_date
-                     and (p.closed_at is None
-                          or p.closed_at < self.end_date))]
-        opened = sum(1 for state in pulls if state == 'open')
-        closed = sum(1 for state in pulls if state == 'closed')
+        pulls = self.filter_by_date_bounds(
+            self.repo.pulls, self.start_date, self.end_date)
+        opened = len(self.filter_by_state(pulls, 'open'))
+        closed = len(self.filter_by_state(pulls, 'closed'))
 
         self.results = [(opened, closed)]
 
@@ -144,13 +195,9 @@ class OldPulls(DateLimitedReport):
         self.days = days
 
     def analyze(self):
-        pulls = [1 for p in self.repo.pulls
-                 if (p.created_at >= self.start_date
-                     and (p.closed_at is None
-                          or p.closed_at < self.end_date)
-
-                     and ((p.closed_at or self.end_date)
-                          - p.created_at).days > self.days)]
+        pulls = self.filter_by_date_bounds(
+            self.repo.pulls, self.start_date, self.end_date)
+        pulls = self.filter_old(pulls, self.end_date, self.days)
 
         self.results = [[len(pulls)]]
 
