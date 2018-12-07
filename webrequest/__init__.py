@@ -9,8 +9,9 @@ __version__ = '0.0.1'
 
 
 import base64
-import urllib.request
 import json
+import ssl
+import urllib.request
 
 
 class Headers:
@@ -49,14 +50,15 @@ class Response:
     """
     HTTP Response object
     """
-    def __init__(self, url, credentials=()):
+    def __init__(self, url, credentials=(), ignore_ssl=True):
         self.url = None
         self.response = None
         self.headers = None
 
         self._credentials = credentials
+        self._ignore_ssl = ignore_ssl
 
-        self.get(url)
+        self.get(url, ignore_ssl)
 
     def __repr__(self):
         return f'<{self.__class__.__name__} url="{self.url}">'
@@ -84,7 +86,7 @@ class Response:
         encoded = base64.b64encode(credentials.encode('ascii'))
         return 'Basic {}'.format(encoded.decode('ascii'))
 
-    def get(self, url):
+    def get(self, url, ignore_ssl=True):
         """
         Load via HTTP Get method
 
@@ -94,13 +96,19 @@ class Response:
         if not url:
             raise AttributeError('Empty URL')
 
+        ctx = None
+        if ignore_ssl:
+            ctx = ssl.create_default_context()
+            ctx.check_hostname = False
+            ctx.verify_mode = ssl.CERT_NONE
+
         self.url = url
         if self.credentials:
             request = urllib.request.Request(url)
             request.add_header('Authorization', self.credentials)
-            self.response = urllib.request.urlopen(request)
+            self.response = urllib.request.urlopen(request, context=ctx)
         else:
-            self.response = urllib.request.urlopen(self.url)
+            self.response = urllib.request.urlopen(self.url, context=ctx)
         self.headers = Headers(self.response.info())
 
     def json(self):
