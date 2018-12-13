@@ -7,6 +7,7 @@ __version__ = '0.0.1'
 
 import datetime
 import operator
+from collections import Counter
 
 
 class Report:
@@ -148,11 +149,10 @@ class ActiveContributors(Report):
         self.top = top
 
     def analyze(self):
-        contributors = [(c.login, c.contributions)
-                        for c in self.repo.contributors]
-        contributors.sort(key=operator.itemgetter(1), reverse=True)
-
-        self.results = contributors[:self.top]
+        contributors = [c.committer.get('login') if c.committer else 'Unknown'
+                        for c in self.repo.commits]
+        counter = Counter(contributors)
+        self.results = counter.most_common(self.top)
 
         return self
 
