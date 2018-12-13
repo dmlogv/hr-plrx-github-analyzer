@@ -51,7 +51,7 @@ def add_url_params(url, params):
     parts = list(urllib.parse.urlparse(url))
     existing_params = urllib.parse.parse_qs(parts[4])
     existing_params.update(params)
-    parts[4] = urllib.parse.urlencode(existing_params)
+    parts[4] = urllib.parse.urlencode(existing_params, doseq=True)
 
     return urllib.parse.urlunparse(parts)
 
@@ -206,11 +206,13 @@ class Repo(Resource):
     resource_url = 'repos'
     params = {'per_page': 100, 'state': 'all'}
 
-    def __init__(self, owner, repository, api_root=ROOT, api=None, **kwargs):
+    def __init__(self, owner, repository, branch='master', api_root=ROOT, api=None, **kwargs):
         self._root = api_root
         self.owner = owner
         self.repository = repository
+        self.branch = branch
 
+        self.commits = None
         self.contributors = None
         self.pulls = None
         self.issues = None
@@ -242,12 +244,22 @@ class Repo(Resource):
         """
         # Bypass empty API arguments
         empty_substitute = {'/number': ''}
+        branch_substitute = {'/sha': ''}
 
+        self.commits = self.load_container(Commits, add_url_params(
+            self.commits_url.format(**branch_substitute), {'sha': self.branch}))
         self.contributors = self.load_container(Contributors, self.contributors_url.format(None))
         self.pulls = self.load_container(Pulls, self.pulls_url.format(**empty_substitute))
         self.issues = self.load_container(Issues, self.issues_url.format(**empty_substitute))
 
         return self
+
+
+class Commit(Resource):
+    """
+    Repository Contributor API
+    """
+    pass
 
 
 class Contributor(Resource):
@@ -269,6 +281,13 @@ class Issue(Resource):
     Repository Issue API
     """
     pass
+
+
+class Commits(Container):
+    """
+    Repository Contributor API
+    """
+    item_type = Commit
 
 
 class Contributors(Container):
