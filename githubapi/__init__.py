@@ -51,7 +51,7 @@ def add_url_params(url, params):
     parts = list(urllib.parse.urlparse(url))
     existing_params = urllib.parse.parse_qs(parts[4])
     existing_params.update(params)
-    parts[4] = urllib.parse.urlencode(existing_params)
+    parts[4] = urllib.parse.urlencode(existing_params, doseq=True)
 
     return urllib.parse.urlunparse(parts)
 
