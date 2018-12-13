@@ -211,6 +211,7 @@ class Repo(Resource):
         self.owner = owner
         self.repository = repository
 
+        self.commits = None
         self.contributors = None
         self.pulls = None
         self.issues = None
@@ -250,6 +251,13 @@ class Repo(Resource):
         return self
 
 
+class Commit(Resource):
+    """
+    Repository Contributor API
+    """
+    pass
+
+
 class Contributor(Resource):
     """
     Repository Contributor API
@@ -269,6 +277,13 @@ class Issue(Resource):
     Repository Issue API
     """
     pass
+
+
+class Commits(Container):
+    """
+    Repository Contributor API
+    """
+    item_type = Commit
 
 
 class Contributors(Container):
