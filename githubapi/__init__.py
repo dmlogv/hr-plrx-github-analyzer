@@ -206,10 +206,11 @@ class Repo(Resource):
     resource_url = 'repos'
     params = {'per_page': 100, 'state': 'all'}
 
-    def __init__(self, owner, repository, api_root=ROOT, api=None, **kwargs):
+    def __init__(self, owner, repository, branch='master', api_root=ROOT, api=None, **kwargs):
         self._root = api_root
         self.owner = owner
         self.repository = repository
+        self.branch = branch
 
         self.commits = None
         self.contributors = None
@@ -243,7 +244,10 @@ class Repo(Resource):
         """
         # Bypass empty API arguments
         empty_substitute = {'/number': ''}
+        branch_substitute = {'/sha': ''}
 
+        self.commits = self.load_container(Commits, add_url_params(
+            self.commits_url.format(**branch_substitute), {'sha': self.branch}))
         self.contributors = self.load_container(Contributors, self.contributors_url.format(None))
         self.pulls = self.load_container(Pulls, self.pulls_url.format(**empty_substitute))
         self.issues = self.load_container(Issues, self.issues_url.format(**empty_substitute))
