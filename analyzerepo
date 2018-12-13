@@ -60,7 +60,7 @@ def main():
     branch = args.branch
     credentials = (args.user, args.password)
 
-    repo = githubapi.Repo(*githubapi.parse_url(url), api=webrequest, credentials=credentials) \
+    repo = githubapi.Repo(*githubapi.parse_url(url), branch=branch, api=webrequest, credentials=credentials) \
         .load().parse().load_containers()
 
     reports = build_reports(repo, start_date, end_date)
